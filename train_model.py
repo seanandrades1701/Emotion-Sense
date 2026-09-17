@@ -2,25 +2,40 @@ import pandas as pd
 import sys
 import joblib
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.pipeline import FeatureUnion
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
+
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    ConfusionMatrixDisplay
+)
+
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
 
 
-# Enable UTF-8 output for Marathi
+# ============================================================
+# SETTINGS
+# ============================================================
+
 sys.stdout.reconfigure(encoding="utf-8")
+rcParams["font.family"] = "Nirmala UI"
 
 
-# --------------------------------------------------
-# Load Final Dataset
-# --------------------------------------------------
+# ============================================================
+# LOAD DATASET
+# ============================================================
 
 df = pd.read_csv("dataset/final_dataset.csv")
+df.columns = df.columns.str.strip()
 
-print("=" * 60)
-print("EMOTION SENSE - MODEL TRAINING")
-print("=" * 60)
+print("=" * 65)
+print("EMOTION SENSE - OVERFITTING REDUCTION")
+print("=" * 65)
 
 print("\nDataset Shape:", df.shape)
 
@@ -28,17 +43,17 @@ print("\nEmotion Distribution:")
 print(df["Emotion"].value_counts())
 
 
-# --------------------------------------------------
-# Input and Output
-# --------------------------------------------------
+# ============================================================
+# INPUT AND OUTPUT
+# ============================================================
 
-X = df["Sentence"]
-y = df["Emotion"]
+X = df["Sentence"].astype(str)
+y = df["Emotion"].astype(str)
 
 
-# --------------------------------------------------
-# Train-Test Split
-# --------------------------------------------------
+# ============================================================
+# TRAIN / TEST SPLIT
+# ============================================================
 
 X_train, X_test, y_train, y_test = train_test_split(
     X,
@@ -52,76 +67,282 @@ print("\nTraining Records:", len(X_train))
 print("Testing Records :", len(X_test))
 
 
-# --------------------------------------------------
-# TF-IDF Feature Extraction
-# --------------------------------------------------
+# ============================================================
+# WORD TF-IDF
+# ============================================================
 
-vectorizer = TfidfVectorizer(
+word_vectorizer = TfidfVectorizer(
     analyzer="word",
     ngram_range=(1, 2),
     min_df=1,
-    sublinear_tf=True
+    sublinear_tf=True,
+    max_features=1000
 )
 
-X_train_tfidf = vectorizer.fit_transform(X_train)
-X_test_tfidf = vectorizer.transform(X_test)
+
+# ============================================================
+# CHARACTER TF-IDF
+# ============================================================
+
+char_vectorizer = TfidfVectorizer(
+    analyzer="char",
+    ngram_range=(3, 5),
+    min_df=2,
+    sublinear_tf=True,
+    max_features=2000
+)
 
 
-print("\nTF-IDF Feature Extraction Completed")
+# ============================================================
+# COMBINE FEATURES
+# ============================================================
 
-print("Training Feature Matrix:", X_train_tfidf.shape)
-print("Testing Feature Matrix :", X_test_tfidf.shape)
+vectorizer = FeatureUnion([
+    ("word_tfidf", word_vectorizer),
+    ("char_tfidf", char_vectorizer)
+])
 
 
-# --------------------------------------------------
-# Train Logistic Regression Model
-# --------------------------------------------------
+# ============================================================
+# FEATURE EXTRACTION
+# ============================================================
 
-model = LogisticRegression(
-    max_iter=1000,
+X_train_features = vectorizer.fit_transform(X_train)
+X_test_features = vectorizer.transform(X_test)
+
+print("\n" + "=" * 65)
+print("FEATURE EXTRACTION")
+print("=" * 65)
+
+print("\nTraining Feature Matrix:",
+      X_train_features.shape)
+
+print("Testing Feature Matrix :",
+      X_test_features.shape)
+
+
+# ============================================================
+# TEST DIFFERENT REGULARIZATION VALUES
+# ============================================================
+
+C_VALUES = [1.0, 0.5, 0.2, 0.1, 0.05]
+
+cv = StratifiedKFold(
+    n_splits=5,
+    shuffle=True,
     random_state=42
 )
 
-model.fit(X_train_tfidf, y_train)
+results = []
+
+print("\n" + "=" * 65)
+print("REGULARIZATION EXPERIMENT")
+print("=" * 65)
+
+for C in C_VALUES:
+
+    model = LogisticRegression(
+        C=C,
+        max_iter=2000,
+        random_state=42
+    )
+
+    scores = cross_val_score(
+        model,
+        X_train_features,
+        y_train,
+        cv=cv,
+        scoring="accuracy"
+    )
+
+    mean_score = scores.mean()
+
+    results.append((C, mean_score))
+
+    print(
+        f"\nC = {C}"
+        f"\nFold Accuracy: "
+        f"{[round(score * 100, 2) for score in scores]}"
+        f"\nMean CV Accuracy: {mean_score * 100:.2f}%"
+    )
 
 
-print("\nLogistic Regression Model Training Completed")
+# ============================================================
+# SELECT BEST C
+# ============================================================
+
+best_C, best_cv_score = max(
+    results,
+    key=lambda x: x[1]
+)
+
+print("\n" + "=" * 65)
+print("BEST REGULARIZATION")
+print("=" * 65)
+
+print("\nBest C:", best_C)
+
+print(
+    "Mean Cross-Validation Accuracy:",
+    round(best_cv_score * 100, 2),
+    "%"
+)
 
 
-# --------------------------------------------------
-# Prediction
-# --------------------------------------------------
+# ============================================================
+# TRAIN FINAL MODEL
+# ============================================================
 
-y_pred = model.predict(X_test_tfidf)
+final_model = LogisticRegression(
+    C=best_C,
+    max_iter=2000,
+    random_state=42
+)
 
+final_model.fit(
+    X_train_features,
+    y_train
+)
 
-# --------------------------------------------------
-# Model Evaluation
-# --------------------------------------------------
-
-accuracy = accuracy_score(y_test, y_pred)
-
-print("\n" + "=" * 60)
-print("MODEL EVALUATION")
-print("=" * 60)
-
-print("\nAccuracy:", round(accuracy * 100, 2), "%")
-
-print("\nClassification Report:")
-print(classification_report(y_test, y_pred))
+print("\nFinal model training completed.")
 
 
-# --------------------------------------------------
-# Save Model and Vectorizer
-# --------------------------------------------------
+# ============================================================
+# TRAINING ACCURACY
+# ============================================================
 
-joblib.dump(model, "emotion_model.pkl")
-joblib.dump(vectorizer, "tfidf_vectorizer.pkl")
+train_predictions = final_model.predict(
+    X_train_features
+)
 
-print("\nModel saved as: emotion_model.pkl")
-print("Vectorizer saved as: tfidf_vectorizer.pkl")
+train_accuracy = accuracy_score(
+    y_train,
+    train_predictions
+)
+
+print(
+    "\nTraining Accuracy:",
+    round(train_accuracy * 100, 2),
+    "%"
+)
 
 
-print("\n" + "=" * 60)
-print("MODEL TRAINING COMPLETED SUCCESSFULLY")
-print("=" * 60)
+# ============================================================
+# TESTING
+# ============================================================
+
+test_predictions = final_model.predict(
+    X_test_features
+)
+
+test_accuracy = accuracy_score(
+    y_test,
+    test_predictions
+)
+
+print(
+    "Testing Accuracy:",
+    round(test_accuracy * 100, 2),
+    "%"
+)
+
+
+# ============================================================
+# CLASSIFICATION REPORT
+# ============================================================
+
+print("\n" + "=" * 65)
+print("FINAL CLASSIFICATION REPORT")
+print("=" * 65)
+
+print(
+    classification_report(
+        y_test,
+        test_predictions,
+        zero_division=0
+    )
+)
+
+
+# ============================================================
+# CONFUSION MATRIX
+# ============================================================
+
+labels = sorted(y.unique())
+
+cm = confusion_matrix(
+    y_test,
+    test_predictions,
+    labels=labels
+)
+
+print("\n" + "=" * 65)
+print("CONFUSION MATRIX")
+print("=" * 65)
+
+print(cm)
+
+
+# ============================================================
+# PLOT CONFUSION MATRIX
+# ============================================================
+
+disp = ConfusionMatrixDisplay(
+    confusion_matrix=cm,
+    display_labels=labels
+)
+
+disp.plot(
+    xticks_rotation=45
+)
+
+plt.title(
+    "Marathi Emotion Classification - Regularized Model"
+)
+
+plt.tight_layout()
+
+plt.savefig(
+    "confusion_matrix_final.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
+plt.show()
+
+
+# ============================================================
+# SAVE MODEL
+# ============================================================
+
+joblib.dump(
+    final_model,
+    "emotion_model.pkl"
+)
+
+joblib.dump(
+    vectorizer,
+    "tfidf_vectorizer.pkl"
+)
+
+
+# ============================================================
+# FINAL INFORMATION
+# ============================================================
+
+print("\n" + "=" * 65)
+print("FINAL MODEL SAVED")
+print("=" * 65)
+
+print("\nModel:")
+print("emotion_model.pkl")
+
+print("\nVectorizer:")
+print("tfidf_vectorizer.pkl")
+
+print("\nConfusion Matrix:")
+print("confusion_matrix_final.png")
+
+print("\n" + "=" * 65)
+print("OVERFITTING REDUCTION COMPLETED")
+print("=" * 65)
