@@ -8,7 +8,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 # -----------------------------
 # Load Dataset
 # -----------------------------
-df = pd.read_csv("dataset/emotionsense_dataset.csv")
+df = pd.read_csv("dataset/EmotionSense Dataset.csv")
 
 # Remove extra spaces from column names
 df.columns = df.columns.str.strip()
