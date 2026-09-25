@@ -1,59 +1,46 @@
 import pandas as pd
 import sys
 import joblib
+import os
+
+from scipy.sparse import hstack
 
 from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.pipeline import FeatureUnion
 from sklearn.linear_model import LogisticRegression
-
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
-    confusion_matrix,
-    ConfusionMatrixDisplay
+    confusion_matrix
 )
 
-import matplotlib.pyplot as plt
-from matplotlib import rcParams
-
-
-# ============================================================
-# SETTINGS
-# ============================================================
-
 sys.stdout.reconfigure(encoding="utf-8")
-rcParams["font.family"] = "Nirmala UI"
 
+print("=" * 70)
+print("MARATHI EMOTION CLASSIFICATION")
+print("WORD + CHARACTER TF-IDF")
+print("=" * 70)
 
-# ============================================================
-# LOAD DATASET
-# ============================================================
+# ---------------------------------------------------------
+# 1. LOAD DATASET
+# ---------------------------------------------------------
 
-df = pd.read_csv("dataset/final_dataset.csv")
+df = pd.read_csv("dataset/cleaned_dataset.csv")
 df.columns = df.columns.str.strip()
-
-print("=" * 65)
-print("EMOTION SENSE - OVERFITTING REDUCTION")
-print("=" * 65)
 
 print("\nDataset Shape:", df.shape)
 
-print("\nEmotion Distribution:")
+print("\nClass Distribution:")
 print(df["Emotion"].value_counts())
 
+df = df.dropna(subset=["Processed_Sentence", "Emotion"])
 
-# ============================================================
-# INPUT AND OUTPUT
-# ============================================================
+X = df["Processed_Sentence"]
+y = df["Emotion"]
 
-X = df["Sentence"].astype(str)
-y = df["Emotion"].astype(str)
-
-
-# ============================================================
-# TRAIN / TEST SPLIT
-# ============================================================
+# ---------------------------------------------------------
+# 2. TRAIN / TEST SPLIT
+# ---------------------------------------------------------
 
 X_train, X_test, y_train, y_test = train_test_split(
     X,
@@ -63,157 +50,86 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=y
 )
 
-print("\nTraining Records:", len(X_train))
-print("Testing Records :", len(X_test))
+print("\nTraining Samples:", len(X_train))
+print("Testing Samples :", len(X_test))
 
+# ---------------------------------------------------------
+# 3. WORD TF-IDF
+# ---------------------------------------------------------
 
-# ============================================================
-# WORD TF-IDF
-# ============================================================
+print("\nCreating Word TF-IDF...")
 
 word_vectorizer = TfidfVectorizer(
     analyzer="word",
     ngram_range=(1, 2),
     min_df=1,
     sublinear_tf=True,
-    max_features=1000
+    max_features=8000
 )
 
+X_train_word = word_vectorizer.fit_transform(X_train)
+X_test_word = word_vectorizer.transform(X_test)
 
-# ============================================================
-# CHARACTER TF-IDF
-# ============================================================
+print("Word Feature Matrix:", X_train_word.shape)
+
+# ---------------------------------------------------------
+# 4. CHARACTER TF-IDF
+# ---------------------------------------------------------
+
+print("\nCreating Character TF-IDF...")
 
 char_vectorizer = TfidfVectorizer(
     analyzer="char",
     ngram_range=(3, 5),
     min_df=2,
     sublinear_tf=True,
-    max_features=2000
+    max_features=12000
 )
 
+X_train_char = char_vectorizer.fit_transform(X_train)
+X_test_char = char_vectorizer.transform(X_test)
 
-# ============================================================
-# COMBINE FEATURES
-# ============================================================
+print("Character Feature Matrix:", X_train_char.shape)
 
-vectorizer = FeatureUnion([
-    ("word_tfidf", word_vectorizer),
-    ("char_tfidf", char_vectorizer)
+# ---------------------------------------------------------
+# 5. COMBINE FEATURES
+# ---------------------------------------------------------
+
+print("\nCombining Word + Character features...")
+
+X_train_combined = hstack([
+    X_train_word,
+    X_train_char
 ])
 
+X_test_combined = hstack([
+    X_test_word,
+    X_test_char
+])
 
-# ============================================================
-# FEATURE EXTRACTION
-# ============================================================
+print("Combined Feature Matrix:", X_train_combined.shape)
 
-X_train_features = vectorizer.fit_transform(X_train)
-X_test_features = vectorizer.transform(X_test)
+# ---------------------------------------------------------
+# 6. TRAIN MODEL
+# ---------------------------------------------------------
 
-print("\n" + "=" * 65)
-print("FEATURE EXTRACTION")
-print("=" * 65)
+print("\nTraining Logistic Regression...")
 
-print("\nTraining Feature Matrix:",
-      X_train_features.shape)
-
-print("Testing Feature Matrix :",
-      X_test_features.shape)
-
-
-# ============================================================
-# TEST DIFFERENT REGULARIZATION VALUES
-# ============================================================
-
-C_VALUES = [1.0, 0.5, 0.2, 0.1, 0.05]
-
-cv = StratifiedKFold(
-    n_splits=5,
-    shuffle=True,
-    random_state=42
+model = LogisticRegression(
+    max_iter=3000,
+    C=1.0,
+    class_weight=None
 )
 
-results = []
+model.fit(X_train_combined, y_train)
 
-print("\n" + "=" * 65)
-print("REGULARIZATION EXPERIMENT")
-print("=" * 65)
+print("Training completed.")
 
-for C in C_VALUES:
+# ---------------------------------------------------------
+# 7. TRAINING ACCURACY
+# ---------------------------------------------------------
 
-    model = LogisticRegression(
-        C=C,
-        max_iter=2000,
-        random_state=42
-    )
-
-    scores = cross_val_score(
-        model,
-        X_train_features,
-        y_train,
-        cv=cv,
-        scoring="accuracy"
-    )
-
-    mean_score = scores.mean()
-
-    results.append((C, mean_score))
-
-    print(
-        f"\nC = {C}"
-        f"\nFold Accuracy: "
-        f"{[round(score * 100, 2) for score in scores]}"
-        f"\nMean CV Accuracy: {mean_score * 100:.2f}%"
-    )
-
-
-# ============================================================
-# SELECT BEST C
-# ============================================================
-
-best_C, best_cv_score = max(
-    results,
-    key=lambda x: x[1]
-)
-
-print("\n" + "=" * 65)
-print("BEST REGULARIZATION")
-print("=" * 65)
-
-print("\nBest C:", best_C)
-
-print(
-    "Mean Cross-Validation Accuracy:",
-    round(best_cv_score * 100, 2),
-    "%"
-)
-
-
-# ============================================================
-# TRAIN FINAL MODEL
-# ============================================================
-
-final_model = LogisticRegression(
-    C=best_C,
-    max_iter=2000,
-    random_state=42
-)
-
-final_model.fit(
-    X_train_features,
-    y_train
-)
-
-print("\nFinal model training completed.")
-
-
-# ============================================================
-# TRAINING ACCURACY
-# ============================================================
-
-train_predictions = final_model.predict(
-    X_train_features
-)
+train_predictions = model.predict(X_train_combined)
 
 train_accuracy = accuracy_score(
     y_train,
@@ -226,14 +142,11 @@ print(
     "%"
 )
 
+# ---------------------------------------------------------
+# 8. TESTING ACCURACY
+# ---------------------------------------------------------
 
-# ============================================================
-# TESTING
-# ============================================================
-
-test_predictions = final_model.predict(
-    X_test_features
-)
+test_predictions = model.predict(X_test_combined)
 
 test_accuracy = accuracy_score(
     y_test,
@@ -241,19 +154,33 @@ test_accuracy = accuracy_score(
 )
 
 print(
-    "Testing Accuracy:",
+    "Testing Accuracy :",
     round(test_accuracy * 100, 2),
     "%"
 )
 
+gap = train_accuracy - test_accuracy
 
-# ============================================================
-# CLASSIFICATION REPORT
-# ============================================================
+print(
+    "\nAccuracy Gap:",
+    round(gap * 100, 2),
+    "percentage points"
+)
 
-print("\n" + "=" * 65)
-print("FINAL CLASSIFICATION REPORT")
-print("=" * 65)
+if gap > 0.15:
+    print("Observation: Possible overfitting.")
+elif train_accuracy < 0.65 and test_accuracy < 0.65:
+    print("Observation: Possible underfitting.")
+else:
+    print("Observation: No strong overfitting/underfitting indication.")
+
+# ---------------------------------------------------------
+# 9. CLASSIFICATION REPORT
+# ---------------------------------------------------------
+
+print("\n" + "=" * 70)
+print("CLASSIFICATION REPORT")
+print("=" * 70)
 
 print(
     classification_report(
@@ -263,10 +190,9 @@ print(
     )
 )
 
-
-# ============================================================
-# CONFUSION MATRIX
-# ============================================================
+# ---------------------------------------------------------
+# 10. CONFUSION MATRIX
+# ---------------------------------------------------------
 
 labels = sorted(y.unique())
 
@@ -276,73 +202,87 @@ cm = confusion_matrix(
     labels=labels
 )
 
-print("\n" + "=" * 65)
+print("\n" + "=" * 70)
 print("CONFUSION MATRIX")
-print("=" * 65)
+print("=" * 70)
 
+print("\nLabels:")
+print(labels)
+
+print("\nMatrix:")
 print(cm)
 
+# ---------------------------------------------------------
+# 11. 5-FOLD CROSS VALIDATION
+# ---------------------------------------------------------
 
-# ============================================================
-# PLOT CONFUSION MATRIX
-# ============================================================
+print("\n" + "=" * 70)
+print("5-FOLD CROSS VALIDATION")
+print("=" * 70)
 
-disp = ConfusionMatrixDisplay(
-    confusion_matrix=cm,
-    display_labels=labels
+# Combine training features only
+cv_features = X_train_combined
+
+cv = StratifiedKFold(
+    n_splits=5,
+    shuffle=True,
+    random_state=42
 )
 
-disp.plot(
-    xticks_rotation=45
+cv_scores = cross_val_score(
+    model,
+    cv_features,
+    y_train,
+    cv=cv,
+    scoring="accuracy"
 )
 
-plt.title(
-    "Marathi Emotion Classification - Regularized Model"
+print("\nFold Accuracies:")
+
+for i, score in enumerate(cv_scores, start=1):
+    print(
+        f"Fold {i}: {score * 100:.2f}%"
+    )
+
+print(
+    "\nMean CV Accuracy:",
+    round(cv_scores.mean() * 100, 2),
+    "%"
 )
 
-plt.tight_layout()
-
-plt.savefig(
-    "confusion_matrix_final.png",
-    dpi=300,
-    bbox_inches="tight"
+print(
+    "CV Standard Deviation:",
+    round(cv_scores.std() * 100, 2),
+    "%"
 )
 
-plt.show()
+# ---------------------------------------------------------
+# 12. SAVE MODEL + VECTORIZERS
+# ---------------------------------------------------------
 
-
-# ============================================================
-# SAVE MODEL
-# ============================================================
+os.makedirs("models", exist_ok=True)
 
 joblib.dump(
-    final_model,
-    "emotion_model.pkl"
+    word_vectorizer,
+    "models/word_tfidf.pkl"
 )
 
 joblib.dump(
-    vectorizer,
-    "tfidf_vectorizer.pkl"
+    char_vectorizer,
+    "models/char_tfidf.pkl"
 )
 
+joblib.dump(
+    model,
+    "models/emotion_model_word_char.pkl"
+)
 
-# ============================================================
-# FINAL INFORMATION
-# ============================================================
+print("\nModels saved successfully:")
 
-print("\n" + "=" * 65)
-print("FINAL MODEL SAVED")
-print("=" * 65)
+print("models/word_tfidf.pkl")
+print("models/char_tfidf.pkl")
+print("models/emotion_model_word_char.pkl")
 
-print("\nModel:")
-print("emotion_model.pkl")
-
-print("\nVectorizer:")
-print("tfidf_vectorizer.pkl")
-
-print("\nConfusion Matrix:")
-print("confusion_matrix_final.png")
-
-print("\n" + "=" * 65)
-print("OVERFITTING REDUCTION COMPLETED")
-print("=" * 65)
+print("\n" + "=" * 70)
+print("WORD + CHARACTER MODEL TRAINING COMPLETED")
+print("=" * 70)
