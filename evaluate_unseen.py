@@ -236,4 +236,4 @@ else:
 
 print("\n" + "=" * 70)
 print("EVALUATION COMPLETED")
-print("=" * 78)
+print("=" * 70)
