@@ -229,6 +229,7 @@ textarea:focus {
     font-weight: 650 !important;
 }
 
+
 /* ---------- BUTTONS ---------- */
 
 .stButton > button {
@@ -254,6 +255,16 @@ textarea:focus {
 .stButton > button:focus {
     color: #07140b;
 }
+
+/* Only the Analyze emotion button */
+div[data-testid="stButton"]:has(button[kind="primary"]) button {
+    color: #000000 !important;
+}
+
+div[data-testid="stButton"]:has(button[kind="primary"]) button p {
+    color: #000000 !important;
+}
+
 
 /* ---------- RESULT ---------- */
 
@@ -488,7 +499,7 @@ with left:
     )
 
     analyze = st.button(
-        "Analyze emotion  →",
+        "Analyze emotion",
         type="primary",
         use_container_width=True
     )
@@ -531,26 +542,6 @@ with right:
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-# =========================================================
-# EXAMPLE SENTENCES
-# =========================================================
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-with st.expander("Try an example sentence"):
-    examples = {
-        "आनंदी · Happy": "आज मला परीक्षेत चांगले गुण मिळाले.",
-        "दुःखी · Sad": "माझा जवळचा मित्र दुसऱ्या शहरात निघून गेला.",
-        "राग · Angry": "अन्यायकारक निर्णय ऐकल्यावर मला खूप राग आला.",
-        "भीती · Fear": "अंधाऱ्या रस्त्यावर चालताना मला भीती वाटली.",
-        "आश्चर्य · Surprise": "दार उघडताच माझ्यासमोर अचानक माझे मित्र उभे होते.",
-        "सामान्य · Neutral": "आज सकाळी बस नियमित वेळेवर आली."
-    }
-
-    for label, example in examples.items():
-        if st.button(label, key=f"example_{label}"):
-            st.session_state["marathi_input"] = example
-            st.rerun()
 
 # =========================================================
 # PREDICTION
