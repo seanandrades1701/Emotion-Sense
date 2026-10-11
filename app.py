@@ -605,7 +605,6 @@ if analyze:
                         prediction,
                         {
                             "english": "Unknown",
-                            "icon": "💬",
                             "description": "Predicted category."
                         }
                     )
@@ -631,9 +630,6 @@ if analyze:
                         <div class="result-card">
                             <div class="result-overline">
                                 Predicted emotion
-                            </div>
-                            <div class="result-emoji">
-                                {info['icon']}
                             </div>
                             <div class="result-emotion">
                                 {prediction}
