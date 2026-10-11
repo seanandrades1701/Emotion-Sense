@@ -465,7 +465,7 @@ st.markdown("""
 # =========================================================
 
 st.markdown("""
-<div class="section-label">01 / Text Analysis</div>
+<div class="section-label"> / Text Analysis</div>
 <div class="section-title">What does your text express?</div>
 <div class="section-description">
     Enter a Marathi sentence and let the model predict its emotional category.
