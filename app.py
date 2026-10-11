@@ -54,11 +54,10 @@ EMOTIONS = {
 # CUSTOM CSS
 # =========================================================
 
+
 st.markdown("""
 <style>
 /* ---------- GLOBAL ---------- */
-
-
 
 #MainMenu,
 footer {
@@ -86,12 +85,12 @@ p, label, li {
     overflow: hidden;
     padding: 48px 40px 42px;
     margin: 8px 0 28px;
-    border: 1px solid rgba(74, 222, 128, 0.20);
+    border: 1px solid rgba(96, 165, 250, 0.20);
     border-radius: 26px;
     background: linear-gradient(
         130deg,
-        rgba(22, 49, 34, 0.95),
-        rgba(12, 23, 17, 0.90)
+        rgba(18, 35, 62, 0.95),
+        rgba(10, 17, 30, 0.90)
     );
     box-shadow: 0 18px 60px rgba(0, 0, 0, 0.20);
 }
@@ -104,12 +103,12 @@ p, label, li {
     right: -80px;
     top: -120px;
     border-radius: 50%;
-    background: rgba(74, 222, 128, 0.12);
+    background: rgba(96, 165, 250, 0.12);
     filter: blur(3px);
 }
 
 .eyebrow {
-    color: #86efac;
+    color: #93C5FD;
     text-transform: uppercase;
     letter-spacing: 3px;
     font-size: 11px;
@@ -127,7 +126,7 @@ p, label, li {
 }
 
 .hero-title .accent {
-    background: linear-gradient(90deg, #4ade80, #a3e635);
+    background: linear-gradient(90deg, #60A5FA, #3B82F6);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -146,10 +145,10 @@ p, label, li {
     display: inline-block;
     margin-top: 23px;
     padding: 8px 13px;
-    border: 1px solid rgba(74, 222, 128, 0.26);
+    border: 1px solid rgba(96, 165, 250, 0.26);
     border-radius: 100px;
-    color: #bbf7d0;
-    background: rgba(34, 197, 94, 0.09);
+    color: #DBEAFE;
+    background: rgba(59, 130, 246, 0.09);
     font-size: 12px;
     font-weight: 600;
 }
@@ -157,7 +156,7 @@ p, label, li {
 /* ---------- SECTION HEADINGS ---------- */
 
 .section-label {
-    color: #4ade80;
+    color: #60A5FA;
     font-size: 11px;
     letter-spacing: 2.5px;
     text-transform: uppercase;
@@ -184,12 +183,12 @@ p, label, li {
 
 .panel {
     padding: 24px;
-    border: 1px solid rgba(150, 190, 162, 0.15);
+    border: 1px solid rgba(96, 165, 250, 0.15);
     border-radius: 20px;
     background: linear-gradient(
         145deg,
-        rgba(22, 35, 27, 0.96),
-        rgba(13, 22, 16, 0.96)
+        rgba(19, 29, 47, 0.96),
+        rgba(11, 17, 29, 0.96)
     );
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
 }
@@ -210,9 +209,9 @@ p, label, li {
 /* ---------- TEXT AREA ---------- */
 
 textarea {
-    background: #0b140e !important;
+    background: #0b111d !important;
     color: #f0fdf4 !important;
-    border: 1px solid #294a34 !important;
+    border: 1px solid #294568 !important;
     border-radius: 13px !important;
     font-family: "Nirmala UI", "Segoe UI", sans-serif !important;
     font-size: 17px !important;
@@ -220,8 +219,8 @@ textarea {
 }
 
 textarea:focus {
-    border-color: #4ade80 !important;
-    box-shadow: 0 0 0 1px #4ade80 !important;
+    border-color: #60A5FA !important;
+    box-shadow: 0 0 0 1px #60A5FA !important;
 }
 
 [data-testid="stTextArea"] label {
@@ -229,15 +228,14 @@ textarea:focus {
     font-weight: 650 !important;
 }
 
-
 /* ---------- BUTTONS ---------- */
 
 .stButton > button {
     width: 100%;
     min-height: 49px;
     border-radius: 12px;
-    border: 1px solid #4ade80;
-    background: linear-gradient(100deg, #22c55e, #86efac);
+    border: 1px solid #60A5FA;
+    background: linear-gradient(100deg, #3B82F6, #93C5FD);
     color: #07140b;
     font-size: 14px;
     font-weight: 800;
@@ -245,10 +243,10 @@ textarea:focus {
 }
 
 .stButton > button:hover {
-    background: linear-gradient(100deg, #4ade80, #bef264);
-    border-color: #86efac;
+    background: linear-gradient(100deg, #60A5FA, #60A5FA);
+    border-color: #93C5FD;
     color: #07140b;
-    box-shadow: 0 5px 24px rgba(74, 222, 128, 0.18);
+    box-shadow: 0 5px 24px rgba(96, 165, 250, 0.18);
     transform: translateY(-1px);
 }
 
@@ -257,6 +255,7 @@ textarea:focus {
 }
 
 /* Only the Analyze emotion button */
+
 div[data-testid="stButton"]:has(button[kind="primary"]) button {
     color: #000000 !important;
 }
@@ -265,17 +264,16 @@ div[data-testid="stButton"]:has(button[kind="primary"]) button p {
     color: #000000 !important;
 }
 
-
 /* ---------- RESULT ---------- */
 
 .result-card {
     padding: 30px 22px;
     text-align: center;
     border-radius: 21px;
-    border: 1px solid rgba(74, 222, 128, 0.28);
+    border: 1px solid rgba(96, 165, 250, 0.28);
     background:
-        radial-gradient(circle at 50% 0%, rgba(74, 222, 128, 0.12), transparent 60%),
-        linear-gradient(145deg, #14291b, #0d1811);
+        radial-gradient(circle at 50% 0%, rgba(96, 165, 250, 0.12), transparent 60%),
+        linear-gradient(145deg, #14243d, #0b111d);
 }
 
 .result-overline {
@@ -289,7 +287,7 @@ div[data-testid="stButton"]:has(button[kind="primary"]) button p {
 .result-emotion {
     font-size: 34px;
     font-weight: 850;
-    color: #86efac;
+    color: #93C5FD;
     line-height: 1.5;
 }
 
@@ -307,10 +305,10 @@ div[data-testid="stButton"]:has(button[kind="primary"]) button p {
 }
 
 .metric-card {
-    border: 1px solid rgba(150, 190, 162, 0.15);
+    border: 1px solid rgba(96, 165, 250, 0.15);
     border-radius: 14px;
     padding: 15px 17px;
-    background: rgba(19, 32, 23, 0.85);
+    background: rgba(15, 24, 40, 0.85);
 }
 
 .metric-label {
@@ -328,7 +326,7 @@ div[data-testid="stButton"]:has(button[kind="primary"]) button p {
 /* ---------- DIVIDER & FOOTER ---------- */
 
 hr {
-    border-color: rgba(150, 190, 162, 0.14) !important;
+    border-color: rgba(96, 165, 250, 0.14) !important;
     margin-top: 28px !important;
     margin-bottom: 28px !important;
 }
@@ -342,7 +340,7 @@ hr {
 }
 
 .footer strong {
-    color: #4ade80;
+    color: #60A5FA;
 }
 
 /* ---------- RESPONSIVE ---------- */
@@ -704,6 +702,7 @@ if analyze:
 
                         st.progress(
                             min(max(score / 100, 0.0), 1.0)
+                            
                         )
 
                     st.markdown("</div>", unsafe_allow_html=True)
