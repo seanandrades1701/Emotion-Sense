@@ -13,7 +13,7 @@ from scipy.sparse import hstack
 
 st.set_page_config(
     page_title="Emotion Sense | Marathi NLP",
-    page_icon="💚",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -45,6 +45,7 @@ EMOTIONS = {
     },
     "सामान्य": {
         "english": "Neutral",
+
         "description": "Factual or emotionally neutral language."
     }
 }
@@ -57,25 +58,7 @@ st.markdown("""
 <style>
 /* ---------- GLOBAL ---------- */
 
-.stApp {
-    background:
-        radial-gradient(ellipse at 12% 0%, #153b29 0%, transparent 36%),
-        radial-gradient(ellipse at 90% 45%, #10271d 0%, transparent 35%),
-        #080d0a;
-    color: #ecf5ef;
-}
 
-[data-testid="stHeader"] {
-    background: rgba(8, 13, 10, 0.92);
-}
-
-[data-testid="stHeaderActionElements"] {
-    display: none !important;
-}
-
-[data-testid="stToolbar"] {
-    display: none !important;
-}
 
 #MainMenu,
 footer {
@@ -290,11 +273,6 @@ textarea:focus {
     font-size: 10px;
     letter-spacing: 2.2px;
     font-weight: 800;
-}
-
-.result-emoji {
-    font-size: 53px;
-    margin: 15px 0 8px;
 }
 
 .result-emotion {
@@ -537,7 +515,6 @@ with right:
                 border-bottom:1px solid rgba(150,190,162,0.10);
             ">
                 <div style="font-size:22px;width:30px;">
-                    {info['icon']}
                 </div>
                 <div style="flex:1;">
                     <div style="color:#e7f5eb;font-size:14px;font-weight:700;">
