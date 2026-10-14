@@ -1,3 +1,4 @@
+
 # Python
 __pycache__/
 *.py[cod]
@@ -14,12 +15,22 @@ env/
 # VS Code
 .vscode/
 
-# Python cache
+# Python cache and testing
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Streamlit
+.streamlit/secrets.toml
 
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Logs
 *.log
+
+# Temporary files
+*.tmp
+*.bak
