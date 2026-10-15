@@ -4,9 +4,16 @@
 
 **Understand emotions in Marathi text. Explore language patterns. Make text more meaningful.**
 
-🌐 **Live Demo:** [EmotionSense — Try the Application](https://emotionsense1.streamlit.app/)
+<p align="center">
+  <a href="https://emotionsense1.streamlit.app/">
+    <img src="https://img.shields.io/badge/Live%20Demo-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Live Demo"/>
+  </a>
+  <a href="https://github.com/seanandrades1701/Emotion-Sense">
+    <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repository"/>
+  </a>
+</p>
 
-EmotionSense is a Marathi Natural Language Processing (NLP) project that classifies Marathi sentences into six emotion categories using machine learning and TF-IDF-based text feature extraction. The project combines text preprocessing, word-level and character-level feature extraction, Logistic Regression, model evaluation, and an interactive Streamlit application.
+EmotionSense is a Marathi Natural Language Processing (NLP) project that classifies Marathi sentences into six emotion categories using machine learning and TF-IDF-based feature extraction. The system combines text preprocessing, word-level and character-level features, Logistic Regression, and an interactive Streamlit web application to predict emotions from Marathi text.
 
 ---
 
@@ -36,22 +43,22 @@ EmotionSense is a Marathi Natural Language Processing (NLP) project that classif
 
 EmotionSense aims to identify emotional expressions in Marathi sentences using Natural Language Processing and supervised machine learning.
 
-Marathi text presents challenges related to vocabulary, grammatical structure, spelling variations, and informal writing. This project explores how text preprocessing and combined word-level and character-level TF-IDF features can help a machine learning model classify Marathi sentences into predefined emotion categories.
+Marathi text presents challenges related to vocabulary, grammatical structures, spelling variations, and informal writing. This project explores how text preprocessing and combined word-level and character-level TF-IDF features can help classify Marathi sentences into predefined emotion categories.
 
-Users can enter Marathi text through the web application and receive a predicted emotion.
+Users can enter Marathi text through the web application and receive a predicted emotion category.
 
 ### Key Features
 
-- **Marathi Emotion Detection:** Classifies Marathi sentences into predefined emotional categories.
+- **Marathi Emotion Detection:** Classifies Marathi sentences into six predefined emotion categories.
 - **Six Emotion Categories:** Supports happiness, surprise, sadness, fear, anger, and neutral expression.
-- **Text Preprocessing:** Cleans and prepares text for machine learning.
+- **Text Preprocessing:** Cleans and prepares sentences for feature extraction.
 - **Word-Level TF-IDF:** Extracts informative word-based features.
 - **Character-Level TF-IDF:** Captures character sequences and word-form patterns.
 - **Combined Feature Extraction:** Integrates word-level and character-level representations.
-- **Machine Learning Classification:** Uses a trained Logistic Regression model.
+- **Machine Learning Classification:** Uses a trained Logistic Regression classifier.
 - **Interactive Web Application:** Provides a user-friendly Streamlit interface.
-- **Model Persistence:** Reuses saved vectorizers and classifier artifacts for prediction.
-- **Model Evaluation:** Evaluates classification performance on held-out and separate unseen datasets.
+- **Model Persistence:** Reuses saved vectorizers and classifier artifacts for predictions.
+- **Model Evaluation:** Evaluates performance on held-out and separate unseen datasets.
 - **Live Deployment:** Makes the application accessible through Streamlit Community Cloud.
 
 ---
@@ -69,7 +76,7 @@ EmotionSense recognizes six emotion categories.
 | राग | Anger | Anger, irritation, or frustration |
 | सामान्य | Neutral | Relatively neutral or ordinary expression |
 
-The model predicts the category that best matches the learned patterns in the input sentence. The prediction does not necessarily represent the writer's actual emotional state.
+The model predicts the category that best matches the learned patterns in the input sentence. This prediction does not necessarily represent the writer's actual emotional state.
 
 ---
 
@@ -86,7 +93,7 @@ flowchart TD
     D --> F[Character-Level TF-IDF]
     E --> G[Combined Feature Representation]
     F --> G
-    G --> H[Logistic Regression]
+    G --> H[Logistic Regression Classifier]
     H --> I[Model Evaluation]
     H --> J[Save Model Artifacts]
     J --> K[Streamlit Application]
@@ -137,7 +144,7 @@ The preparation process includes:
 
 A separate evaluation dataset, `unseen_test_300.csv`, contains **300 sentences**, with 50 sentences per emotion category.
 
-Using a separate dataset helps assess how well the model performs on examples beyond the primary training and test split. The independence of this evaluation depends on whether those examples were kept separate during model development and tuning.
+Using a separate dataset helps assess how well the model performs on additional examples. The strength of this evaluation depends on whether those examples remained independent during model development and tuning.
 
 ---
 
@@ -145,7 +152,7 @@ Using a separate dataset helps assess how well the model performs on examples be
 
 Text preprocessing prepares Marathi sentences for feature extraction and classification.
 
-The project preprocessing pipeline includes the following operations, as applicable to the implementation:
+The preprocessing pipeline includes the following operations, where applicable to the implementation:
 
 | Step | Purpose |
 |---|---|
@@ -175,7 +182,7 @@ Character-level TF-IDF represents sentences through character sequences. These f
 
 EmotionSense combines word-level and character-level features to provide complementary information to the classifier.
 
-The trained model expects features generated by the corresponding saved vectorizers. Therefore, the same vectorizers must be loaded during prediction rather than fitting new ones on individual input sentences.
+The trained model expects features generated by the corresponding saved vectorizers. Therefore, the same vectorizers must be loaded during prediction rather than fitted again on individual input sentences.
 
 ---
 
@@ -183,7 +190,7 @@ The trained model expects features generated by the corresponding saved vectoriz
 
 EmotionSense uses **Logistic Regression** for multiclass emotion classification.
 
-The project evaluates the model using a held-out test set, cross-validation, and a separate unseen dataset.
+The project evaluates model performance using a held-out test set, cross-validation, and a separate unseen dataset.
 
 ### Reported Results
 
@@ -198,14 +205,14 @@ The project evaluates the model using a held-out test set, cross-validation, and
 ### Understanding the Results
 
 - **Held-out test accuracy:** The proportion of correct predictions on the test split used during model development.
-- **Cross-validation accuracy:** The mean accuracy across five validation folds, with the reported variation of 1.34 percentage points.
+- **Cross-validation accuracy:** The mean accuracy across five validation folds, with a reported variation of 1.34 percentage points.
 - **Unseen dataset accuracy:** The proportion of correct predictions on the separate dataset of 300 sentences.
 
 The unseen evaluation produced 279 correct predictions out of 300, corresponding to 93% accuracy.
 
-The difference between held-out and unseen accuracy shows why evaluation on additional data is important. Performance can vary depending on sentence diversity, vocabulary, writing style, and how closely evaluation examples resemble the training data.
+The difference between held-out and unseen accuracy demonstrates why testing on additional data is important. Performance can vary with sentence diversity, vocabulary, writing style, and the similarity between evaluation examples and training data.
 
-These results describe the reported experiments. They do not guarantee equivalent accuracy on every Marathi sentence or real-world dataset.
+These figures reflect the reported experiments and do not guarantee equivalent accuracy on every Marathi sentence or real-world dataset.
 
 ---
 
@@ -227,10 +234,10 @@ These results describe the reported experiments. They do not guarantee equivalen
 
 ## Project Structure
 
-The following structure represents the main project components. Confirm the actual filenames and paths in your repository before using this as an exact directory listing.
+The following structure represents the main project components. Confirm the actual filenames and paths in your repository before treating this as an exact directory listing.
 
 ```text
-EmotionSense/
+Emotion-Sense/
 │
 ├── app.py
 ├── preprocessing.py
@@ -266,7 +273,7 @@ EmotionSense/
 | `dataset/` | Stores training and evaluation datasets |
 | `models/` | Stores the trained classifier and vectorizers |
 
-Keep model filenames consistent with the paths referenced by your Python scripts. Only include files that exist in the final repository.
+Keep model filenames consistent with the paths referenced by your Python scripts. Only include files that exist in your final repository.
 
 ---
 
@@ -281,16 +288,12 @@ Keep model filenames consistent with the paths referenced by your Python scripts
 
 ### 1. Clone the Repository
 
-Use the following commands after replacing the placeholder with your actual EmotionSense GitHub repository URL.
-
 ```bash
-git clone <YOUR_EMOTIONSENSE_REPOSITORY_URL>
-cd EmotionSense
+git clone https://github.com/seanandrades1701/Emotion-Sense.git
+cd Emotion-Sense
 ```
 
-Alternatively, download the repository as a ZIP file and open the extracted project folder in Visual Studio Code.
-
-**Note:** The live application URL is provided below, but it is different from the source-code repository URL.
+Alternatively, download the repository as a ZIP file and open the extracted folder in Visual Studio Code.
 
 ### 2. Create a Virtual Environment
 
@@ -301,7 +304,7 @@ python -m venv venv
 .\venv\Scripts\Activate.ps1
 ```
 
-If PowerShell blocks activation, you can use Command Prompt:
+If PowerShell blocks activation, use Command Prompt:
 
 ```bat
 venv\Scripts\activate.bat
@@ -314,7 +317,7 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Make sure `requirements.txt` contains every package imported by the application and supporting scripts.
+Ensure that `requirements.txt` contains every package imported by the application and supporting scripts.
 
 ### 4. Verify Model Files
 
@@ -351,7 +354,7 @@ Open this address in your browser to access the application locally.
 4. The application processes the text and extracts its features.
 5. View the predicted emotion category.
 
-The deployed application is also available here:
+You can also use the live application without installing anything:
 
 **[Launch EmotionSense](https://emotionsense1.streamlit.app/)**
 
@@ -377,7 +380,7 @@ Run:
 python evaluate_unseen.py
 ```
 
-This script evaluates the saved model on the configured unseen dataset. Verify that the script uses the intended dataset and the latest model artifacts before interpreting the results.
+This script evaluates the saved model on the configured unseen dataset. Verify that it uses the intended dataset and the latest model artifacts before interpreting the results.
 
 ### Run the Prediction Script
 
@@ -395,15 +398,12 @@ Otherwise, use the prediction functionality through the Streamlit application.
 
 EmotionSense is deployed using **Streamlit Community Cloud**.
 
-<|endoftext|>**Live Application:** [https://emotionsense1.streamlit.app/](https://emotionsense1.streamlit.app/)
-
-The deployed application allows users to access the interface through a web browser without installing Python or the project's dependencies locally.
-
-### Deployment Configuration
+**Live Application:** [https://emotionsense1.streamlit.app/](https://emotionsense1.streamlit.app/)
 
 | Property | Value |
 |---|---|
 | Application | EmotionSense Marathi NLP |
+| Source code | [GitHub Repository](https://github.com/seanandrades1701/Emotion-Sense) |
 | Hosting platform | Streamlit Community Cloud |
 | Main application file | `app.py` |
 | Dependencies | `requirements.txt` |
@@ -452,12 +452,14 @@ Developed as a Marathi Natural Language Processing and machine learning project.
 
 This project applies text preprocessing, TF-IDF feature extraction, and supervised machine learning to Marathi emotion classification.
 
-Dataset sources and attribution should be included according to the actual origin and usage conditions of the data.
+Dataset sources and attribution should be documented according to the actual origin and usage conditions of the data.
 
 ---
 
-### EmotionSense
-
-**Bringing emotion classification to Marathi text through NLP and machine learning.**
-
-🌐 **Try the live application:** [https://emotionsense1.streamlit.app/](https://emotionsense1.streamlit.app/)
+<p align="center">
+  <strong>EmotionSense — Bringing emotion classification to Marathi text through NLP and machine learning.</strong>
+  <br/><br/>
+  <a href="https://emotionsense1.streamlit.app/">Try the Live Application</a>
+  &nbsp; | &nbsp;
+  <a href="https://github.com/seanandrades1701/Emotion-Sense">Explore the Source Code</a>
+</p>
